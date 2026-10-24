@@ -7,9 +7,9 @@ import authRoutes from "./routes/auth.js";
 import boardRoutes from "./routes/boards.js";
 import taskRoutes from "./routes/tasks.js";
 
-export function createApp({ clientOrigin, realtime }) {
+// app.locals.rt (tiempo real) se asigna después, al montar Socket.io sobre el servidor HTTP
+export function createApp({ clientOrigin }) {
   const app = express();
-  app.locals.rt = realtime;
 
   app.use(cors({ origin: clientOrigin }));
   app.use(express.json({ limit: "100kb" }));

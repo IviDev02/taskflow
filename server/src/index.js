@@ -6,9 +6,11 @@ import { createRealtime } from "./realtime.js";
 
 await connectDB(config.mongoUri);
 
-const server = http.createServer();
+// Express primero y Socket.io encima: así Socket.io atiende /socket.io y delega el resto en Express
+const app = createApp({ clientOrigin: config.clientOrigin });
+const server = http.createServer(app);
 const realtime = createRealtime(server, config);
-server.on("request", createApp({ clientOrigin: config.clientOrigin, realtime }));
+app.locals.rt = realtime;
 
 server.listen(config.port, () => {
   console.log(`✔ API de TaskFlow en http://localhost:${config.port}`);

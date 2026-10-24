@@ -12,9 +12,9 @@ const sockets = [];
 
 before(async () => {
   await connectDB(""); // MongoDB en memoria
-  server = http.createServer();
-  const realtime = createRealtime(server, { clientOrigin: "*" });
-  server.on("request", createApp({ clientOrigin: "*", realtime }));
+  const app = createApp({ clientOrigin: "*" });
+  server = http.createServer(app);
+  app.locals.rt = createRealtime(server, { clientOrigin: "*" });
   await new Promise((r) => server.listen(0, r));
   url = `http://localhost:${server.address().port}`;
   api = request(server);
@@ -35,9 +35,9 @@ const register = async (name) => {
 };
 const auth = (token) => ({ Authorization: `Bearer ${token}` });
 
-const openSocket = (token) =>
+const openSocket = (token, transports = ["websocket"]) =>
   new Promise((resolve, reject) => {
-    const s = connect(url, { auth: { token }, transports: ["websocket"] });
+    const s = connect(url, { auth: { token }, transports });
     sockets.push(s);
     s.on("connect", () => resolve(s));
     s.on("connect_error", reject);
@@ -142,6 +142,16 @@ test("tableros, tareas, movimientos y eventos en tiempo real", async () => {
   await api.delete(`/api/tasks/${t1.id}`).set(auth(owner.token)).expect(204);
   await api.delete(`/api/boards/${board.id}`).set(auth(owner.token)).expect(204);
   await api.get(`/api/boards/${board.id}`).set(auth(owner.token)).expect(404);
+});
+
+// El navegador empieza por long-polling HTTP: Express no debe interferir en /socket.io
+test("funciona por long-polling HTTP, como el navegador al conectar", async () => {
+  const { token } = await register("Elena");
+  const s = await openSocket(token, ["polling"]);
+  assert.equal(s.io.engine.transport.name, "polling");
+  const res = await s.emitWithAck("board:join", "000000000000000000000000");
+  assert.equal(res.ok, false);
+  await api.get("/api/health").expect(200); // el servidor sigue vivo
 });
 
 test("el socket rechaza conexiones sin token válido", async () => {
