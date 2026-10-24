@@ -8,6 +8,8 @@ Gestor de tareas colaborativo con **tableros kanban en tiempo real**. Varias per
 
 - **Autenticación JWT**: registro e inicio de sesión con contraseñas cifradas con bcrypt. El mismo token protege la API REST y la conexión WebSocket.
 - **Tableros kanban**: columnas *Por hacer*, *En curso* y *Hecho*, con arrastrar y soltar para reordenar y mover tareas.
+- **Prioridades, etiquetas y fechas límite**: cuatro niveles de prioridad con color, etiquetas (Bug, Feature, Diseño, Frontend, Backend, DevOps, Docs) y avisos de tareas vencidas o que vencen pronto.
+- **Filtros**: búsqueda por texto, prioridad, etiqueta y "mis tareas". El arrastrar y soltar sigue funcionando con los filtros activos.
 - **Tiempo real con Socket.io**: crear, editar, mover o borrar una tarea se refleja al instante en todos los navegadores conectados al tablero.
 - **Presencia**: un punto verde indica quién está viendo el tablero en ese momento.
 - **Notificaciones**: avisos en vivo cuando te invitan a un tablero, te asignan una tarea o alguien mueve algo.
