@@ -1,16 +1,21 @@
 import { useState } from "react";
 import Modal from "./Modal.jsx";
-import { COLUMNS } from "../lib/tasks.js";
+import { COLUMNS, LABELS, PRIORITIES } from "../lib/tasks.js";
 
 export default function TaskModal({ task, members, onSave, onDelete, onClose }) {
   const [form, setForm] = useState({
     title: task.title,
     description: task.description,
     assignee: task.assignee ?? "",
+    priority: task.priority,
+    labels: task.labels,
+    dueDate: task.dueDate ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const toggleLabel = (id) =>
+    setForm((f) => ({ ...f, labels: f.labels.includes(id) ? f.labels.filter((l) => l !== id) : [...f.labels, id] }));
   const creator = members.find((m) => m.id === task.createdBy);
 
   const submit = async (e) => {
@@ -18,7 +23,7 @@ export default function TaskModal({ task, members, onSave, onDelete, onClose }) 
     setSaving(true);
     setError("");
     try {
-      await onSave({ ...form, assignee: form.assignee || null });
+      await onSave({ ...form, assignee: form.assignee || null, dueDate: form.dueDate || null });
       onClose();
     } catch (err) {
       setError(err.message);
@@ -35,17 +40,65 @@ export default function TaskModal({ task, members, onSave, onDelete, onClose }) 
         </label>
         <label className="field">
           <span>Descripción</span>
-          <textarea value={form.description} onChange={set("description")} rows={4} maxLength={2000} placeholder="Añade más detalles…" />
+          <textarea value={form.description} onChange={set("description")} rows={3} maxLength={2000} placeholder="Añade más detalles…" />
         </label>
-        <label className="field">
-          <span>Asignada a</span>
-          <select value={form.assignee} onChange={set("assignee")}>
-            <option value="">Sin asignar</option>
-            {members.map((m) => (
-              <option key={m.id} value={m.id}>{m.name}</option>
+
+        <div className="field">
+          <span>Prioridad</span>
+          <div className="segmented" role="radiogroup" aria-label="Prioridad">
+            {PRIORITIES.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                role="radio"
+                aria-checked={form.priority === p.id}
+                className={`seg priority-${p.id} ${form.priority === p.id ? "active" : ""}`}
+                onClick={() => setForm((f) => ({ ...f, priority: p.id }))}
+              >
+                {p.icon} {p.label}
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
+
+        <div className="field">
+          <span>Etiquetas</span>
+          <div className="label-picker">
+            {LABELS.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                aria-pressed={form.labels.includes(l.id)}
+                className={`label label-${l.id} ${form.labels.includes(l.id) ? "on" : "off"}`}
+                onClick={() => toggleLabel(l.id)}
+              >
+                {form.labels.includes(l.id) && "✓ "}{l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="field-row">
+          <label className="field">
+            <span>Asignada a</span>
+            <select value={form.assignee} onChange={set("assignee")}>
+              <option value="">Sin asignar</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Fecha límite</span>
+            <div className="row">
+              <input type="date" value={form.dueDate} onChange={set("dueDate")} />
+              {form.dueDate && (
+                <button type="button" className="icon-btn" onClick={() => setForm((f) => ({ ...f, dueDate: "" }))} aria-label="Quitar fecha">×</button>
+              )}
+            </div>
+          </label>
+        </div>
+
         <p className="meta">
           {COLUMNS.find((c) => c.id === task.status)?.title}
           {creator && ` · Creada por ${creator.name}`}

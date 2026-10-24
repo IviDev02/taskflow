@@ -23,6 +23,8 @@ const boardSchema = new Schema(
 boardSchema.index({ members: 1 });
 
 export const STATUSES = ["todo", "doing", "done"];
+export const PRIORITIES = ["low", "medium", "high", "urgent"];
+export const LABELS = ["bug", "feature", "design", "frontend", "backend", "devops", "docs"];
 
 const taskSchema = new Schema(
   {
@@ -30,6 +32,9 @@ const taskSchema = new Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, default: "", trim: true },
     status: { type: String, enum: STATUSES, default: "todo" },
+    priority: { type: String, enum: PRIORITIES, default: "medium" },
+    labels: [{ type: String, enum: LABELS }],
+    dueDate: { type: Date, default: null },
     position: { type: Number, default: 0 },
     assignee: { type: Schema.Types.ObjectId, ref: "User", default: null },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },

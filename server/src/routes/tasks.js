@@ -4,17 +4,11 @@ import { Task, STATUSES } from "../models.js";
 import { HttpError, requireAuth } from "../auth.js";
 import { assertMember, loadBoard } from "../access.js";
 import { actorDTO, taskDTO } from "../serializers.js";
+import { updateTaskSchema } from "../schemas.js";
 
 const router = Router();
 router.use(requireAuth);
 
-const updateSchema = z
-  .object({
-    title: z.string().trim().min(1, "El título es obligatorio").max(140),
-    description: z.string().trim().max(2000),
-    assignee: z.string().nullable(),
-  })
-  .partial();
 const moveSchema = z.object({
   status: z.enum(STATUSES),
   index: z.number().int().min(0),
@@ -32,7 +26,7 @@ async function loadTask(taskId, user) {
 
 router.patch("/:id", async (req, res) => {
   const { task, board } = await loadTask(req.params.id, req.user);
-  const data = updateSchema.parse(req.body);
+  const data = updateTaskSchema.parse(req.body);
   if ("assignee" in data) assertMember(board, data.assignee);
   const previousAssignee = task.assignee?.toString() ?? null;
   task.set(data);

@@ -144,6 +144,34 @@ test("tableros, tareas, movimientos y eventos en tiempo real", async () => {
   await api.get(`/api/boards/${board.id}`).set(auth(owner.token)).expect(404);
 });
 
+test("prioridad, etiquetas y fecha límite", async () => {
+  const { token } = await register("Fran");
+  const { body: { board } } = await api.post("/api/boards").set(auth(token)).send({ name: "Etiquetas" }).expect(201);
+  const tasksUrl = `/api/boards/${board.id}/tasks`;
+
+  const { body: { task: basic } } = await api.post(tasksUrl).set(auth(token)).send({ title: "Por defecto" }).expect(201);
+  assert.equal(basic.priority, "medium");
+  assert.deepEqual(basic.labels, []);
+  assert.equal(basic.dueDate, null);
+
+  const { body: { task } } = await api.post(tasksUrl).set(auth(token))
+    .send({ title: "Arreglar login", priority: "urgent", labels: ["bug", "backend", "bug"], dueDate: "2026-11-15" }).expect(201);
+  assert.equal(task.priority, "urgent");
+  assert.deepEqual(task.labels, ["bug", "backend"]); // sin duplicados
+  assert.equal(task.dueDate, "2026-11-15");
+
+  await api.post(tasksUrl).set(auth(token)).send({ title: "x", priority: "altísima" }).expect(400);
+  await api.post(tasksUrl).set(auth(token)).send({ title: "x", labels: ["inventada"] }).expect(400);
+  await api.post(tasksUrl).set(auth(token)).send({ title: "x", dueDate: "15/11/2026" }).expect(400);
+
+  const { body: { task: edited } } = await api.patch(`/api/tasks/${task.id}`).set(auth(token))
+    .send({ priority: "low", labels: ["docs"], dueDate: null }).expect(200);
+  assert.equal(edited.priority, "low");
+  assert.deepEqual(edited.labels, ["docs"]);
+  assert.equal(edited.dueDate, null);
+  assert.equal(edited.title, "Arreglar login"); // lo no enviado no cambia
+});
+
 // El navegador empieza por long-polling HTTP: Express no debe interferir en /socket.io
 test("funciona por long-polling HTTP, como el navegador al conectar", async () => {
   const { token } = await register("Elena");

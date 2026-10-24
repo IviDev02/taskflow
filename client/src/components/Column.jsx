@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import TaskCard from "./TaskCard.jsx";
 
-export default function Column({ column, tasks, members, draggingId, onDragStart, onDragEnd, onDrop, onOpen, onCreate }) {
+export default function Column({ column, tasks, total, members, draggingId, onDragStart, onDragEnd, onDrop, onOpen, onCreate }) {
   const listRef = useRef(null);
   const [dropIndex, setDropIndex] = useState(null);
   const [adding, setAdding] = useState(false);
@@ -44,7 +44,7 @@ export default function Column({ column, tasks, members, draggingId, onDragStart
       <header className="column-head">
         <span className="column-dot" />
         <h3>{column.title}</h3>
-        <span className="count">{tasks.length}</span>
+        <span className="count">{tasks.length === total ? total : `${tasks.length} / ${total}`}</span>
       </header>
 
       <div className="task-list" ref={listRef}>
@@ -68,7 +68,9 @@ export default function Column({ column, tasks, members, draggingId, onDragStart
           );
         })}
         {dropIndex === visible.length && <div className="drop-line" />}
-        {tasks.length === 0 && dropIndex === null && <p className="empty">Arrastra tareas aquí</p>}
+        {tasks.length === 0 && dropIndex === null && (
+          <p className="empty">{total > 0 ? "Ninguna tarea coincide con el filtro" : "Arrastra tareas aquí"}</p>
+        )}
       </div>
 
       {adding ? (

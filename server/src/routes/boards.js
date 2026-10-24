@@ -1,21 +1,16 @@
 import { Router } from "express";
 import { z } from "zod";
-import { Board, Task, User, STATUSES } from "../models.js";
+import { Board, Task, User } from "../models.js";
 import { HttpError, requireAuth } from "../auth.js";
 import { assertMember, assertOwner, loadBoard } from "../access.js";
 import { actorDTO, boardDTO, taskDTO } from "../serializers.js";
+import { createTaskSchema } from "../schemas.js";
 
 const router = Router();
 router.use(requireAuth);
 
 const nameSchema = z.object({ name: z.string().trim().min(1, "El nombre es obligatorio").max(80) });
 const memberSchema = z.object({ email: z.email("Email no válido").trim().toLowerCase() });
-const taskSchema = z.object({
-  title: z.string().trim().min(1, "El título es obligatorio").max(140),
-  description: z.string().trim().max(2000).optional(),
-  status: z.enum(STATUSES).optional(),
-  assignee: z.string().nullable().optional(),
-});
 
 // Lista de tableros del usuario con el número de tareas por estado
 router.get("/", async (req, res) => {
@@ -123,7 +118,7 @@ router.delete("/:id/members/:userId", async (req, res) => {
 
 router.post("/:id/tasks", async (req, res) => {
   const board = await loadBoard(req.params.id, req.user);
-  const data = taskSchema.parse(req.body);
+  const data = createTaskSchema.parse(req.body);
   assertMember(board, data.assignee);
   const status = data.status ?? "todo";
   const last = await Task.findOne({ board: board._id, status }).sort({ position: -1 });
