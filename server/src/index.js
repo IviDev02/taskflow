@@ -5,6 +5,10 @@ import { createApp } from "./app.js";
 import { createRealtime } from "./realtime.js";
 
 await connectDB(config.mongoUri);
+if (!config.mongoUri) {
+  const { seedDemo } = await import("./seed.js");
+  await seedDemo();
+}
 
 // Express primero y Socket.io encima: así Socket.io atiende /socket.io y delega el resto en Express
 const app = createApp({ clientOrigin: config.clientOrigin });

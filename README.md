@@ -51,7 +51,7 @@ npm run dev
 - Web: http://localhost:5173 (Vite usará otro puerto si ese está ocupado)
 - API: http://localhost:4000
 
-Si no defines `MONGO_URI`, la API arranca un **MongoDB en memoria** automáticamente. La primera vez descarga el binario (~800 MB); los datos se pierden al parar. Para persistirlos, usa MongoDB Atlas (gratis) o un MongoDB local:
+Si no defines `MONGO_URI`, la API arranca un **MongoDB en memoria** automáticamente con datos de ejemplo. Puedes entrar con la cuenta demo `demo@taskflow.dev` / `demo12345`. La primera vez descarga el binario (~800 MB); los datos se pierden al parar. Para persistirlos, usa MongoDB Atlas (gratis) o un MongoDB local:
 
 ```bash
 MONGO_URI="mongodb+srv://..." npm run dev
