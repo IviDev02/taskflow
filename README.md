@@ -5,7 +5,7 @@ Gestor de tareas colaborativo con **tableros kanban en tiempo real**. Varias per
 **Stack:** React · Node.js · Express · Socket.io · MongoDB · JWT · Docker
 
 > [!IMPORTANT]
-> **Este proyecto solo funciona en local.** No hay ninguna versión desplegada en internet: para probarlo tienes que descargarlo y ejecutarlo en tu ordenador. Mira [Cómo probarlo](#cómo-probarlo); en unos minutos lo tienes funcionando.
+> **Este proyecto solo funciona en local.** Es un proyecto personal, así que no hay ninguna versión desplegada en internet: para probarlo tienes que descargarlo y ejecutarlo en tu ordenador. Mira [Cómo probarlo](#cómo-probarlo); en unos minutos lo tienes funcionando.
 
 ## Funcionalidades
 
@@ -35,7 +35,7 @@ server/   Express 5 + Mongoose + Socket.io — API REST + WebSockets
 
 ## Cómo probarlo
 
-TaskFlow **no está alojado en ningún servidor**: se ejecuta en tu propio ordenador y solo es accesible desde él (`localhost`). Puedes probarlo de dos formas.
+Al ser un proyecto personal, TaskFlow **no está alojado en ningún servidor**: se ejecuta en tu propio ordenador y solo es accesible desde él (`localhost`). Puedes probarlo de dos formas.
 
 ### Requisitos
 
