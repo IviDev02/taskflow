@@ -3,7 +3,7 @@ import { Board, Task, User } from "./models.js";
 
 export const DEMO = { email: "demo@taskflow.dev", password: "demo12345" };
 
-// Datos de ejemplo para la base de datos en memoria, que empieza vacía en cada arranque
+// Datos de ejemplo para la base de datos local: solo se crean la primera vez, cuando aún no existe la cuenta demo
 export async function seedDemo() {
   if (await User.exists({ email: DEMO.email })) return;
 

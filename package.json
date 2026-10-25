@@ -10,8 +10,10 @@
   ],
   "scripts": {
     "dev": "concurrently -n api,web -c magenta,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
+    "start": "npm run build && npm start -w server",
     "build": "npm run build -w client",
-    "test": "npm test -w server"
+    "test": "npm test -w server",
+    "reset": "node -e \"require('fs').rmSync('server/data',{recursive:true,force:true})\" && echo Datos borrados"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -8,7 +10,7 @@ import boardRoutes from "./routes/boards.js";
 import taskRoutes from "./routes/tasks.js";
 
 // app.locals.rt (tiempo real) se asigna después, al montar Socket.io sobre el servidor HTTP
-export function createApp({ clientOrigin }) {
+export function createApp({ clientOrigin, clientDist }) {
   const app = express();
 
   app.use(cors({ origin: clientOrigin }));
@@ -22,6 +24,12 @@ export function createApp({ clientOrigin }) {
   app.use("/api", (_req, _res) => {
     throw new HttpError(404, "Ruta no encontrada");
   });
+
+  // Con la web compilada (npm start) la sirve Express: todo en un solo servidor y puerto
+  if (clientDist && fs.existsSync(path.join(clientDist, "index.html"))) {
+    app.use(express.static(clientDist));
+    app.get("/{*ruta}", (_req, res) => res.sendFile(path.join(clientDist, "index.html")));
+  }
 
   // Express 5 pasa aquí también los errores de los handlers async
   app.use((err, _req, res, _next) => {
