@@ -4,6 +4,9 @@ Gestor de tareas colaborativo con **tableros kanban en tiempo real**. Varias per
 
 **Stack:** React · Node.js · Express · Socket.io · MongoDB · JWT · Docker
 
+> [!IMPORTANT]
+> **Este proyecto solo funciona en local.** No hay ninguna versión desplegada en internet: para probarlo tienes que descargarlo y ejecutarlo en tu ordenador. Mira [Cómo probarlo](#cómo-probarlo); en unos minutos lo tienes funcionando.
+
 ## Funcionalidades
 
 - **Autenticación JWT**: registro e inicio de sesión con contraseñas cifradas con bcrypt. El mismo token protege la API REST y la conexión WebSocket.
@@ -30,34 +33,56 @@ server/   Express 5 + Mongoose + Socket.io — API REST + WebSockets
 - El orden de las tareas se guarda como `position` por columna. Al mover una tarea, el servidor renumera solo las columnas afectadas con un `bulkWrite`.
 - Los permisos se comprueban en cada petición: un usuario que no es miembro recibe `404`, para no revelar que el tablero existe.
 
-## Puesta en marcha
+## Cómo probarlo
 
-### Con Docker (recomendado)
+TaskFlow **no está alojado en ningún servidor**: se ejecuta en tu propio ordenador y solo es accesible desde él (`localhost`). Puedes probarlo de dos formas.
+
+### Requisitos
+
+| Necesitas | Opción A: Node.js (recomendada) | Opción B: Docker |
+|---|---|---|
+| [Node.js](https://nodejs.org) **20 o superior** (incluye npm) | ✅ | — |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | — | ✅ |
+| [Git](https://git-scm.com), o bien descargar el ZIP desde GitHub (*Code → Download ZIP*) | ✅ | ✅ |
+| Conexión a internet la primera vez | ✅ (descarga ~800 MB de MongoDB) | ✅ (descarga las imágenes) |
+| Instalar MongoDB | ❌ No hace falta | ❌ No hace falta |
+
+Funciona en Windows, macOS y Linux. Comprueba tu versión de Node con `node -v`.
+
+### Opción A: con Node.js (recomendada, incluye datos de ejemplo)
 
 ```bash
-cp .env.example .env      # y cambia JWT_SECRET
-docker compose up --build
-```
-
-Abre http://localhost:8080. Levanta MongoDB, la API y la web; Nginx hace de proxy de `/api` y de los WebSockets.
-
-### Sin Docker (desarrollo)
-
-Requiere Node.js 20 o superior.
-
-```bash
+git clone https://github.com/IviDev02/taskflow.git
+cd taskflow
 npm install
 npm run dev
 ```
 
-- Web: http://localhost:5173 (Vite usará otro puerto si ese está ocupado)
-- API: http://localhost:4000
+Abre **http://localhost:5173** (si ese puerto está ocupado, Vite usará otro y lo mostrará en la terminal) y entra con la cuenta demo:
 
-Si no defines `MONGO_URI`, la API arranca un **MongoDB en memoria** automáticamente con datos de ejemplo. Puedes entrar con la cuenta demo `demo@taskflow.dev` / `demo12345`. La primera vez descarga el binario (~800 MB); los datos se pierden al parar. Para persistirlos, usa MongoDB Atlas (gratis) o un MongoDB local:
+- **Email:** `demo@taskflow.dev`
+- **Contraseña:** `demo12345`
+
+La API arranca un **MongoDB en memoria** automáticamente, así que no tienes que instalar ni configurar ninguna base de datos. La primera vez tarda un poco porque descarga el binario de MongoDB (~800 MB). Ten en cuenta que **los datos se borran al parar el servidor** (`Ctrl + C`).
+
+**Para probar el tiempo real**, abre la app en dos navegadores distintos (o en una ventana normal y otra de incógnito), entra con dos cuentas distintas e invita a la segunda al tablero. Los cambios que hagas en una ventana aparecerán al instante en la otra.
+
+Si prefieres que los datos se conserven, apunta a un MongoDB propio (local o MongoDB Atlas):
 
 ```bash
 MONGO_URI="mongodb+srv://..." npm run dev
 ```
+
+### Opción B: con Docker
+
+```bash
+git clone https://github.com/IviDev02/taskflow.git
+cd taskflow
+cp .env.example .env      # y cambia JWT_SECRET
+docker compose up --build
+```
+
+Abre **http://localhost:8080**. Levanta MongoDB, la API y la web, con Nginx como proxy de `/api` y de los WebSockets. Aquí los datos sí se conservan entre reinicios, pero la base de datos empieza vacía: crea una cuenta desde la pantalla de registro.
 
 ### Tests
 
